@@ -50,6 +50,14 @@ export default (state = initialState, action = {}) => {
     case SET:
       const { data } = action
       pathArr = pathToArr(path)
+
+      // Handle invalid keyPath error caused by deep setting to a null value
+      if (data !== undefined && state.getIn(['data', ...pathArr]) === null) {
+        retVal = state.remove(['data', ...pathArr])
+      } else {
+        retVal = state // start with state
+      }
+
       try {
         retVal = (data !== undefined)
           ? state.setIn(['data', ...pathArr], fromJS(data))

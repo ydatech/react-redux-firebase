@@ -68,6 +68,14 @@ exports.default = function () {
       var data = action.data;
 
       pathArr = pathToArr(path);
+
+      // Handle invalid keyPath error caused by deep setting to a null value
+      if (data !== undefined && state.getIn(['data'].concat(_toConsumableArray(pathArr))) === null) {
+        retVal = state.remove(['data'].concat(_toConsumableArray(pathArr)));
+      } else {
+        retVal = state; // start with state
+      }
+
       try {
         retVal = data !== undefined ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
       } catch (err) {
