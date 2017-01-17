@@ -1,8 +1,8 @@
 import { fromJS } from 'immutable'
-import { actionTypes, paramSplitChar } from './constants'
+import { actionTypes } from './constants'
+import { toJS } from './helpers'
 
 const {
-  START,
   SET,
   SET_PROFILE,
   LOGIN,
@@ -19,15 +19,12 @@ const emptyState = {
   authError: undefined,
   profile: undefined,
   isInitializing: undefined,
-  data: {},
-  timestamp: {},
-  requesting: {},
-  requested: {}
+  data: {}
 }
 
 const initialState = fromJS(emptyState)
 
-const pathToArr = path => path ? path.split(/\//).filter(p => !!p) : []
+const pathToArr = path => path.split(/\//).filter(p => !!p)
 
 /**
  * @name firebaseStateReducer
@@ -42,76 +39,46 @@ const pathToArr = path => path ? path.split(/\//).filter(p => !!p) : []
  * @return {Map} State
  */
 export default (state = initialState, action = {}) => {
-  const { path, timestamp, requesting, requested } = action
+  const { path } = action
   let pathArr
   let retVal
+  console.log('state before:', toJS(state)) // eslint-disable-line no-console
+  console.log('action before:', action) // eslint-disable-line no-console
 
   switch (action.type) {
 
-    case START:
-      pathArr = pathToArr(path)
-      retVal = (requesting !== undefined)
-         ? state.setIn(['requesting', pathArr.join(paramSplitChar)], fromJS(requesting))
-         : state.deleteIn(['requesting', pathArr.join(paramSplitChar)])
-
-      retVal = (requested !== undefined)
-         ? retVal.setIn(['requested', pathArr.join(paramSplitChar)], fromJS(requested))
-         : retVal.deleteIn(['requested', pathArr.join(paramSplitChar)])
-
-      return retVal
-
     case SET:
       const { data } = action
-
       pathArr = pathToArr(path)
-
-      // Handle invalid keyPath error caused by deep setting to a null value
-      if (data !== undefined && state.getIn(['data', ...pathArr]) === null) {
-        retVal = state.remove(['data', ...pathArr])
-      } else {
-        retVal = state // start with state
+      try {
+        retVal = (data !== undefined)
+          ? state.setIn(['data', ...pathArr], fromJS(data))
+          : state.deleteIn(['data', ...pathArr])
+      } catch (err) {
+        console.error('Error setting:', err.toString()) // eslint-disable-line no-console
       }
-
-      retVal = (data !== undefined)
-        ? retVal.setIn(['data', ...pathArr], fromJS(data))
-        : retVal.deleteIn(['data', ...pathArr])
-
-      retVal = (timestamp !== undefined)
-        ? retVal.setIn(['timestamp', pathArr.join(paramSplitChar)], fromJS(timestamp))
-        : retVal.deleteIn(['timestamp', pathArr.join(paramSplitChar)])
-
-      retVal = (requesting !== undefined)
-        ? retVal.setIn(['requesting', pathArr.join(paramSplitChar)], fromJS(requesting))
-        : retVal.deleteIn(['requesting', pathArr.join(paramSplitChar)])
-
-      retVal = (requested !== undefined)
-        ? retVal.setIn(['requested', pathArr.join(paramSplitChar)], fromJS(requested))
-        : retVal.deleteIn(['requested', pathArr.join(paramSplitChar)])
 
       return retVal
 
     case NO_VALUE:
       pathArr = pathToArr(path)
-      retVal = state.setIn(['data', ...pathArr], fromJS({}))
-
-      retVal = (timestamp !== undefined)
-        ? retVal.setIn(['timestamp', pathArr.join(paramSplitChar)], fromJS(timestamp))
-        : retVal.deleteIn(['timestamp', pathArr.join(paramSplitChar)])
-
-      retVal = (requesting !== undefined)
-        ? retVal.setIn(['requesting', pathArr.join(paramSplitChar)], fromJS(requesting))
-        : retVal.deleteIn(['requesting', pathArr.join(paramSplitChar)])
-
-      retVal = (requested !== undefined)
-        ? retVal.setIn(['requested', pathArr.join(paramSplitChar)], fromJS(requested))
-        : retVal.deleteIn(['requested', pathArr.join(paramSplitChar)])
-
+      try {
+        retVal = state.setIn(['data', ...pathArr], fromJS({}))
+      } catch (err) {
+        console.error('Error setting no value:', err.toString()) // eslint-disable-line no-console
+      }
       return retVal
 
     case SET_PROFILE:
-      return (action.profile !== undefined)
-        ? state.setIn(['profile'], fromJS(action.profile))
-        : state.deleteIn(['profile'])
+      const { profile } = action
+      try {
+        retVal = (profile !== undefined)
+          ? state.setIn(['profile'], fromJS(profile))
+          : state.deleteIn(['profile'])
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
+      }
+      return retVal
 
     case LOGOUT:
       return fromJS({
@@ -123,14 +90,24 @@ export default (state = initialState, action = {}) => {
       })
 
     case LOGIN:
-      return state.setIn(['auth'], fromJS(action.auth))
-                  .setIn(['authError'], null)
+      try {
+        retVal = state.setIn(['auth'], fromJS(action.auth))
+                    .setIn(['authError'], null)
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
+      }
+      return retVal
 
     case LOGIN_ERROR:
-      return state
-              .setIn(['authError'], action.authError)
-              .setIn(['auth'], null)
-              .setIn(['profile'], null)
+      try {
+        retVal = state
+                .setIn(['authError'], action.authError)
+                .setIn(['auth'], null)
+                .setIn(['profile'], null)
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
+      }
+      return retVal
 
     case AUTHENTICATION_INIT_STARTED:
       return initialState.setIn(['isInitializing'], true)

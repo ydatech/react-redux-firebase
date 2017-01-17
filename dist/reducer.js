@@ -8,10 +8,11 @@ var _immutable = require('immutable');
 
 var _constants = require('./constants');
 
+var _helpers = require('./helpers');
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var START = _constants.actionTypes.START,
-    SET = _constants.actionTypes.SET,
+var SET = _constants.actionTypes.SET,
     SET_PROFILE = _constants.actionTypes.SET_PROFILE,
     LOGIN = _constants.actionTypes.LOGIN,
     LOGOUT = _constants.actionTypes.LOGOUT,
@@ -27,18 +28,15 @@ var emptyState = {
   authError: undefined,
   profile: undefined,
   isInitializing: undefined,
-  data: {},
-  timestamp: {},
-  requesting: {},
-  requested: {}
+  data: {}
 };
 
 var initialState = (0, _immutable.fromJS)(emptyState);
 
 var pathToArr = function pathToArr(path) {
-  return path ? path.split(/\//).filter(function (p) {
+  return path.split(/\//).filter(function (p) {
     return !!p;
-  }) : [];
+  });
 };
 
 /**
@@ -57,61 +55,45 @@ var pathToArr = function pathToArr(path) {
 exports.default = function () {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
   var action = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var path = action.path,
-      timestamp = action.timestamp,
-      requesting = action.requesting,
-      requested = action.requested;
+  var path = action.path;
 
   var pathArr = void 0;
   var retVal = void 0;
+  console.log('state before:', (0, _helpers.toJS)(state)); // eslint-disable-line no-console
+  console.log('action before:', action); // eslint-disable-line no-console
 
   switch (action.type) {
-
-    case START:
-      pathArr = pathToArr(path);
-      retVal = requesting !== undefined ? state.setIn(['requesting', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(requesting)) : state.deleteIn(['requesting', pathArr.join(_constants.paramSplitChar)]);
-
-      retVal = requested !== undefined ? retVal.setIn(['requested', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(requested)) : retVal.deleteIn(['requested', pathArr.join(_constants.paramSplitChar)]);
-
-      return retVal;
 
     case SET:
       var data = action.data;
 
-
       pathArr = pathToArr(path);
-
-      // Handle invalid keyPath error caused by deep setting to a null value
-      if (data !== undefined && state.getIn(['data'].concat(_toConsumableArray(pathArr))) === null) {
-        retVal = state.remove(['data'].concat(_toConsumableArray(pathArr)));
-      } else {
-        retVal = state; // start with state
+      try {
+        retVal = data !== undefined ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+      } catch (err) {
+        console.error('Error setting:', err.toString()); // eslint-disable-line no-console
       }
-
-      retVal = data !== undefined ? retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
-
-      retVal = timestamp !== undefined ? retVal.setIn(['timestamp', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(timestamp)) : retVal.deleteIn(['timestamp', pathArr.join(_constants.paramSplitChar)]);
-
-      retVal = requesting !== undefined ? retVal.setIn(['requesting', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(requesting)) : retVal.deleteIn(['requesting', pathArr.join(_constants.paramSplitChar)]);
-
-      retVal = requested !== undefined ? retVal.setIn(['requested', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(requested)) : retVal.deleteIn(['requested', pathArr.join(_constants.paramSplitChar)]);
 
       return retVal;
 
     case NO_VALUE:
       pathArr = pathToArr(path);
-      retVal = state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)({}));
-
-      retVal = timestamp !== undefined ? retVal.setIn(['timestamp', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(timestamp)) : retVal.deleteIn(['timestamp', pathArr.join(_constants.paramSplitChar)]);
-
-      retVal = requesting !== undefined ? retVal.setIn(['requesting', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(requesting)) : retVal.deleteIn(['requesting', pathArr.join(_constants.paramSplitChar)]);
-
-      retVal = requested !== undefined ? retVal.setIn(['requested', pathArr.join(_constants.paramSplitChar)], (0, _immutable.fromJS)(requested)) : retVal.deleteIn(['requested', pathArr.join(_constants.paramSplitChar)]);
-
+      try {
+        retVal = state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)({}));
+      } catch (err) {
+        console.error('Error setting no value:', err.toString()); // eslint-disable-line no-console
+      }
       return retVal;
 
     case SET_PROFILE:
-      return action.profile !== undefined ? state.setIn(['profile'], (0, _immutable.fromJS)(action.profile)) : state.deleteIn(['profile']);
+      var profile = action.profile;
+
+      try {
+        retVal = profile !== undefined ? state.setIn(['profile'], (0, _immutable.fromJS)(profile)) : state.deleteIn(['profile']);
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()); // eslint-disable-line no-console
+      }
+      return retVal;
 
     case LOGOUT:
       return (0, _immutable.fromJS)({
@@ -123,10 +105,20 @@ exports.default = function () {
       });
 
     case LOGIN:
-      return state.setIn(['auth'], (0, _immutable.fromJS)(action.auth)).setIn(['authError'], null);
+      try {
+        retVal = state.setIn(['auth'], (0, _immutable.fromJS)(action.auth)).setIn(['authError'], null);
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()); // eslint-disable-line no-console
+      }
+      return retVal;
 
     case LOGIN_ERROR:
-      return state.setIn(['authError'], action.authError).setIn(['auth'], null).setIn(['profile'], null);
+      try {
+        retVal = state.setIn(['authError'], action.authError).setIn(['auth'], null).setIn(['profile'], null);
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()); // eslint-disable-line no-console
+      }
+      return retVal;
 
     case AUTHENTICATION_INIT_STARTED:
       return initialState.setIn(['isInitializing'], true);
