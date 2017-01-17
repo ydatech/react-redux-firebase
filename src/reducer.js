@@ -1,5 +1,6 @@
 import { fromJS } from 'immutable'
 import { actionTypes } from './constants'
+import { toJS } from './helpers'
 
 const {
   SET,
@@ -41,28 +42,43 @@ export default (state = initialState, action = {}) => {
   const { path } = action
   let pathArr
   let retVal
+  console.log('state before:', toJS(state)) // eslint-disable-line no-console
+  console.log('action before:', action) // eslint-disable-line no-console
 
   switch (action.type) {
 
     case SET:
       const { data } = action
       pathArr = pathToArr(path)
-      retVal = (data !== undefined)
-        ? state.setIn(['data', ...pathArr], fromJS(data))
-        : state.deleteIn(['data', ...pathArr])
+      try {
+        retVal = (data !== undefined)
+          ? state.setIn(['data', ...pathArr], fromJS(data))
+          : state.deleteIn(['data', ...pathArr])
+      } catch (err) {
+        console.error('Error setting:', err.toString()) // eslint-disable-line no-console
+      }
 
       return retVal
 
     case NO_VALUE:
       pathArr = pathToArr(path)
-      retVal = state.setIn(['data', ...pathArr], fromJS({}))
+      try {
+        retVal = state.setIn(['data', ...pathArr], fromJS({}))
+      } catch (err) {
+        console.error('Error setting no value:', err.toString()) // eslint-disable-line no-console
+      }
       return retVal
 
     case SET_PROFILE:
-      const {profile} = action
-      return (profile !== undefined)
-        ? state.setIn(['profile'], fromJS(profile))
-        : state.deleteIn(['profile'])
+      const { profile } = action
+      try {
+        retVal = (profile !== undefined)
+          ? state.setIn(['profile'], fromJS(profile))
+          : state.deleteIn(['profile'])
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
+      }
+      return retVal
 
     case LOGOUT:
       return fromJS({
@@ -74,8 +90,13 @@ export default (state = initialState, action = {}) => {
       })
 
     case LOGIN:
-      return state.setIn(['auth'], fromJS(action.auth))
-                  .setIn(['authError'], null)
+      try {
+        retVal = state.setIn(['auth'], fromJS(action.auth))
+                    .setIn(['authError'], null)
+      } catch (err) {
+        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
+      }
+      return retVal
 
     case LOGIN_ERROR:
       return state
