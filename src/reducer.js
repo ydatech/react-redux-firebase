@@ -63,9 +63,16 @@ export default (state = initialState, action = {}) => {
       }
       console.debug('after removal of null', { action, state: toJS(state) }) // eslint-disable-line no-console
       try {
-        retVal = (data !== undefined)
-          ? retVal.setIn(['data', ...pathArr], fromJS(data))
-          : retVal.deleteIn(['data', ...pathArr])
+        if (data !== undefined) {
+          console.debug('data !== undefined is true')
+          console.debug('[data, ...pathArr]', ['data', ...pathArr])
+          console.debug('fromJS(data)', fromJS(data));
+          retVal.setIn(['data', ...pathArr], fromJS(data))
+        } else {
+          console.debug('data !== undefined is false')
+          console.debug('[data, ...pathArr]', ['data', ...pathArr])
+          retVal.deleteIn(['data', ...pathArr])
+        }
       } catch (err) {
         console.error('Error setting:', err.toString()) // eslint-disable-line no-console
       }

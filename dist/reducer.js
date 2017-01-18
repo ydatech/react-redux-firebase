@@ -86,7 +86,16 @@ exports.default = function () {
       }
       console.debug('after removal of null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
       try {
-        retVal = data !== undefined ? retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+        if (data !== undefined) {
+          console.debug('data !== undefined is true');
+          console.debug('[data, ...pathArr]', ['data'].concat(_toConsumableArray(pathArr)));
+          console.debug('fromJS(data)', (0, _immutable.fromJS)(data));
+          retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data));
+        } else {
+          console.debug('data !== undefined is false');
+          console.debug('[data, ...pathArr]', ['data'].concat(_toConsumableArray(pathArr)));
+          retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+        }
       } catch (err) {
         console.error('Error setting:', err.toString()); // eslint-disable-line no-console
       }
