@@ -50,18 +50,21 @@ export default (state = initialState, action = {}) => {
     case SET:
       const { data } = action
       pathArr = pathToArr(path)
-
+      console.debug('set called:', { action, state: toJS(state) }) // eslint-disable-line no-console
       // Handle invalid keyPath error caused by deep setting to a null value
       if (data !== undefined && state.getIn(['data', ...pathArr]) === null) {
-        retVal = state.remove(['data', ...pathArr])
+        console.debug('value is null', { action, state: toJS(state) }) // eslint-disable-line no-console
+        console.debug('removing', { path: ['data', ...pathArr] }) // eslint-disable-line no-console
+        retVal = state.deleteIn(['data', ...pathArr])
       } else {
+        console.log('value is not null', { action, state: toJS(state) }) // eslint-disable-line no-console
         retVal = state // start with state
       }
-
+      console.debug('after removal of null', { action, state: toJS(state) }) // eslint-disable-line no-console
       try {
         retVal = (data !== undefined)
-          ? state.setIn(['data', ...pathArr], fromJS(data))
-          : state.deleteIn(['data', ...pathArr])
+          ? retVal.setIn(['data', ...pathArr], fromJS(data))
+          : retVal.deleteIn(['data', ...pathArr])
       } catch (err) {
         console.error('Error setting:', err.toString()) // eslint-disable-line no-console
       }

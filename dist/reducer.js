@@ -68,16 +68,19 @@ exports.default = function () {
       var data = action.data;
 
       pathArr = pathToArr(path);
-
+      console.debug('set called:', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
       // Handle invalid keyPath error caused by deep setting to a null value
       if (data !== undefined && state.getIn(['data'].concat(_toConsumableArray(pathArr))) === null) {
-        retVal = state.remove(['data'].concat(_toConsumableArray(pathArr)));
+        console.debug('value is null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
+        console.debug('removing', { path: ['data'].concat(_toConsumableArray(pathArr)) }); // eslint-disable-line no-console
+        retVal = state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
       } else {
+        console.log('value is not null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
         retVal = state; // start with state
       }
-
+      console.debug('after removal of null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
       try {
-        retVal = data !== undefined ? state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+        retVal = data !== undefined ? retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
       } catch (err) {
         console.error('Error setting:', err.toString()); // eslint-disable-line no-console
       }
