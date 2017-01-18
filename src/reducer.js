@@ -1,7 +1,6 @@
 import { dropRight } from 'lodash'
 import { fromJS } from 'immutable'
 import { actionTypes } from './constants'
-import { toJS } from './helpers'
 
 const {
   SET,
@@ -43,63 +42,36 @@ export default (state = initialState, action = {}) => {
   const { path } = action
   let pathArr
   let retVal
-  console.log('state before:', toJS(state)) // eslint-disable-line no-console
-  console.log('action before:', action) // eslint-disable-line no-console
-
   switch (action.type) {
 
     case SET:
       const { data } = action
       pathArr = pathToArr(path)
-      console.debug('set called:', { action, state: toJS(state) }) // eslint-disable-line no-console
+
       // Handle invalid keyPath error caused by deep setting to a null value
       if (data !== undefined && state.getIn(['data', ...pathArr]) === null) {
-        console.debug('value is null', { action, state: toJS(state) }) // eslint-disable-line no-console
-        console.debug('removing', { path: ['data', ...pathArr] }) // eslint-disable-line no-console
         retVal = state.deleteIn(['data', ...pathArr])
       } else if (state.getIn(dropRight(['data', ...pathArr])) === null) {
         retVal = state.deleteIn(dropRight(['data', ...pathArr]))
       } else {
-        console.log('value is not null', { action, state: toJS(state) }) // eslint-disable-line no-console
         retVal = state // start with state
       }
-      console.debug('after removal of null', { action, state: toJS(state) }) // eslint-disable-line no-console
-      try {
-        if (data !== undefined) {
-          console.debug('data !== undefined is true')
-          console.debug('[data, ...pathArr]', ['data', ...pathArr])
-          console.debug('fromJS(data)', fromJS(data));
-          retVal = retVal.setIn(['data', ...pathArr], fromJS(data))
-        } else {
-          console.debug('data !== undefined is false')
-          console.debug('[data, ...pathArr]', ['data', ...pathArr])
-          retVal = retVal.deleteIn(['data', ...pathArr])
-        }
-      } catch (err) {
-        console.error('Error setting:', err.toString()) // eslint-disable-line no-console
-      }
+
+      retVal = (profile !== undefined)
+        ? retVal.setIn(['data', ...pathArr], fromJS(data))
+        : retVal.deleteIn(['data', ...pathArr])
 
       return retVal
 
     case NO_VALUE:
       pathArr = pathToArr(path)
-      try {
-        retVal = state.setIn(['data', ...pathArr], fromJS({}))
-      } catch (err) {
-        console.error('Error setting no value:', err.toString()) // eslint-disable-line no-console
-      }
-      return retVal
+      return state.setIn(['data', ...pathArr], fromJS({}))
 
     case SET_PROFILE:
       const { profile } = action
-      try {
-        retVal = (profile !== undefined)
-          ? state.setIn(['profile'], fromJS(profile))
-          : state.deleteIn(['profile'])
-      } catch (err) {
-        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
-      }
-      return retVal
+      return profile !== undefined
+        ? state.setIn(['profile'], fromJS(profile))
+        : state.deleteIn(['profile'])
 
     case LOGOUT:
       return fromJS({
@@ -111,24 +83,15 @@ export default (state = initialState, action = {}) => {
       })
 
     case LOGIN:
-      try {
-        retVal = state.setIn(['auth'], fromJS(action.auth))
-                    .setIn(['authError'], null)
-      } catch (err) {
-        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
-      }
-      return retVal
+      return state
+              .setIn(['auth'], fromJS(action.auth))
+              .setIn(['authError'], null)
 
     case LOGIN_ERROR:
-      try {
-        retVal = state
-                .setIn(['authError'], action.authError)
-                .setIn(['auth'], null)
-                .setIn(['profile'], null)
-      } catch (err) {
-        console.error('Error setting profile:', err.toString()) // eslint-disable-line no-console
-      }
-      return retVal
+      return state
+              .setIn(['authError'], action.authError)
+              .setIn(['auth'], null)
+              .setIn(['profile'], null)
 
     case AUTHENTICATION_INIT_STARTED:
       return initialState.setIn(['isInitializing'], true)

@@ -12,8 +12,6 @@ var _immutable = require('immutable');
 
 var _constants = require('./constants');
 
-var _helpers = require('./helpers');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -65,63 +63,34 @@ exports.default = function () {
 
   var pathArr = void 0;
   var retVal = void 0;
-  console.log('state before:', (0, _helpers.toJS)(state)); // eslint-disable-line no-console
-  console.log('action before:', action); // eslint-disable-line no-console
-
   switch (action.type) {
 
     case SET:
       var data = action.data;
 
       pathArr = pathToArr(path);
-      console.debug('set called:', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
+
       // Handle invalid keyPath error caused by deep setting to a null value
       if (data !== undefined && state.getIn(['data'].concat(_toConsumableArray(pathArr))) === null) {
-        console.debug('value is null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
-        console.debug('removing', { path: ['data'].concat(_toConsumableArray(pathArr)) }); // eslint-disable-line no-console
         retVal = state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
       } else if (state.getIn((0, _dropRight3.default)(['data'].concat(_toConsumableArray(pathArr)))) === null) {
         retVal = state.deleteIn((0, _dropRight3.default)(['data'].concat(_toConsumableArray(pathArr))));
       } else {
-        console.log('value is not null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
         retVal = state; // start with state
       }
-      console.debug('after removal of null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
-      try {
-        if (data !== undefined) {
-          console.debug('data !== undefined is true');
-          console.debug('[data, ...pathArr]', ['data'].concat(_toConsumableArray(pathArr)));
-          console.debug('fromJS(data)', (0, _immutable.fromJS)(data));
-          retVal = retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data));
-        } else {
-          console.debug('data !== undefined is false');
-          console.debug('[data, ...pathArr]', ['data'].concat(_toConsumableArray(pathArr)));
-          retVal = retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
-        }
-      } catch (err) {
-        console.error('Error setting:', err.toString()); // eslint-disable-line no-console
-      }
+
+      retVal = profile !== undefined ? retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
 
       return retVal;
 
     case NO_VALUE:
       pathArr = pathToArr(path);
-      try {
-        retVal = state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)({}));
-      } catch (err) {
-        console.error('Error setting no value:', err.toString()); // eslint-disable-line no-console
-      }
-      return retVal;
+      return state.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)({}));
 
     case SET_PROFILE:
       var profile = action.profile;
 
-      try {
-        retVal = profile !== undefined ? state.setIn(['profile'], (0, _immutable.fromJS)(profile)) : state.deleteIn(['profile']);
-      } catch (err) {
-        console.error('Error setting profile:', err.toString()); // eslint-disable-line no-console
-      }
-      return retVal;
+      return profile !== undefined ? state.setIn(['profile'], (0, _immutable.fromJS)(profile)) : state.deleteIn(['profile']);
 
     case LOGOUT:
       return (0, _immutable.fromJS)({
@@ -133,20 +102,10 @@ exports.default = function () {
       });
 
     case LOGIN:
-      try {
-        retVal = state.setIn(['auth'], (0, _immutable.fromJS)(action.auth)).setIn(['authError'], null);
-      } catch (err) {
-        console.error('Error setting profile:', err.toString()); // eslint-disable-line no-console
-      }
-      return retVal;
+      return state.setIn(['auth'], (0, _immutable.fromJS)(action.auth)).setIn(['authError'], null);
 
     case LOGIN_ERROR:
-      try {
-        retVal = state.setIn(['authError'], action.authError).setIn(['auth'], null).setIn(['profile'], null);
-      } catch (err) {
-        console.error('Error setting profile:', err.toString()); // eslint-disable-line no-console
-      }
-      return retVal;
+      return state.setIn(['authError'], action.authError).setIn(['auth'], null).setIn(['profile'], null);
 
     case AUTHENTICATION_INIT_STARTED:
       return initialState.setIn(['isInitializing'], true);
