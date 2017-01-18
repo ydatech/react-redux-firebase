@@ -4,11 +4,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _dropRight2 = require('lodash/dropRight');
+
+var _dropRight3 = _interopRequireDefault(_dropRight2);
+
 var _immutable = require('immutable');
 
 var _constants = require('./constants');
 
 var _helpers = require('./helpers');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -73,7 +79,7 @@ exports.default = function () {
       if (data !== undefined && state.getIn(['data'].concat(_toConsumableArray(pathArr))) === null) {
         console.debug('value is null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
         console.debug('removing', { path: ['data'].concat(_toConsumableArray(pathArr)) }); // eslint-disable-line no-console
-        retVal = state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+        retVal = state.deleteIn((0, _dropRight3.default)(['data'].concat(_toConsumableArray(pathArr))));
       } else {
         console.log('value is not null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
         retVal = state; // start with state

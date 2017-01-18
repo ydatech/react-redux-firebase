@@ -1,3 +1,4 @@
+import { dropRight } from 'lodash'
 import { fromJS } from 'immutable'
 import { actionTypes } from './constants'
 import { toJS } from './helpers'
@@ -55,7 +56,7 @@ export default (state = initialState, action = {}) => {
       if (data !== undefined && state.getIn(['data', ...pathArr]) === null) {
         console.debug('value is null', { action, state: toJS(state) }) // eslint-disable-line no-console
         console.debug('removing', { path: ['data', ...pathArr] }) // eslint-disable-line no-console
-        retVal = state.deleteIn(['data', ...pathArr])
+        retVal = state.deleteIn(dropRight(['data', ...pathArr]))
       } else {
         console.log('value is not null', { action, state: toJS(state) }) // eslint-disable-line no-console
         retVal = state // start with state
