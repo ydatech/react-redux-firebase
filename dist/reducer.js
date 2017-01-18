@@ -79,6 +79,8 @@ exports.default = function () {
       if (data !== undefined && state.getIn(['data'].concat(_toConsumableArray(pathArr))) === null) {
         console.debug('value is null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
         console.debug('removing', { path: ['data'].concat(_toConsumableArray(pathArr)) }); // eslint-disable-line no-console
+        retVal = state.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+      } else if (state.getIn((0, _dropRight3.default)(['data'].concat(_toConsumableArray(pathArr)))) === null) {
         retVal = state.deleteIn((0, _dropRight3.default)(['data'].concat(_toConsumableArray(pathArr))));
       } else {
         console.log('value is not null', { action: action, state: (0, _helpers.toJS)(state) }); // eslint-disable-line no-console
@@ -90,11 +92,11 @@ exports.default = function () {
           console.debug('data !== undefined is true');
           console.debug('[data, ...pathArr]', ['data'].concat(_toConsumableArray(pathArr)));
           console.debug('fromJS(data)', (0, _immutable.fromJS)(data));
-          retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data));
+          retVal = retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data));
         } else {
           console.debug('data !== undefined is false');
           console.debug('[data, ...pathArr]', ['data'].concat(_toConsumableArray(pathArr)));
-          retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+          retVal = retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
         }
       } catch (err) {
         console.error('Error setting:', err.toString()); // eslint-disable-line no-console
