@@ -79,7 +79,7 @@ exports.default = function () {
         retVal = state; // start with state
       }
 
-      retVal = profile !== undefined ? retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
+      retVal = data !== undefined ? retVal.setIn(['data'].concat(_toConsumableArray(pathArr)), (0, _immutable.fromJS)(data)) : retVal.deleteIn(['data'].concat(_toConsumableArray(pathArr)));
 
       return retVal;
 

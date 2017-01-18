@@ -57,7 +57,7 @@ export default (state = initialState, action = {}) => {
         retVal = state // start with state
       }
 
-      retVal = (profile !== undefined)
+      retVal = (data !== undefined)
         ? retVal.setIn(['data', ...pathArr], fromJS(data))
         : retVal.deleteIn(['data', ...pathArr])
 
